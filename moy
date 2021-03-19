@@ -1,0 +1,62 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.regex.Pattern;
+
+public class moy {
+    public static void main(String[] args) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String stroka = reader.readLine();
+        System.out.println(strCon(stroka.toCharArray()));
+        if (Valid(stroka)) System.out.println(strCon(stroka.toCharArray()));
+        else System.out.println("no valid");
+        reader.close();
+    }
+
+    public static String strCon(char[] inputStr) {
+        String strReturn = "";
+        int numSkobka = 0;          //Счетчик скобок внутри скобок
+        int indexOfPovtorenia = 0;  // Позиция в открывающейся скобке
+        int ratio = 0;              // Количество повторений символов внутри скобок
+        for (int i=0; i < inputStr.length; i++) {
+            if(Character.isLetter(inputStr[i]) && numSkobka == 0)   // Проверка букв вне скобок
+                strReturn += inputStr[i];
+            if (Character.isDigit(inputStr[i]) && numSkobka == 0)   // Проверка числа вне скобок
+                ratio = Integer.parseInt(String.valueOf(inputStr[i]));
+            if (inputStr[i] == '[') {               // Проверка символа [
+                numSkobka++;
+                if (numSkobka == 1) {
+                    indexOfPovtorenia = i;
+                }
+            }
+            if (inputStr[i] == ']') {               // Проверка сивола ]
+                numSkobka--;
+                if (numSkobka == 0) {
+                    strReturn += strCon(Arrays.copyOfRange(inputStr, indexOfPovtorenia +1, i)).repeat(ratio);
+                    indexOfPovtorenia = 0;
+                    ratio = 0;
+                }
+            }
+        }
+        return strReturn;
+    }
+
+    public static boolean Valid(String stroka) {
+        int numSkobka = 0;
+        for (int i=0; i < stroka.length(); i++) {
+            if(Character.isDigit(stroka.toCharArray()[i])) {  // Проверка на счетчик число
+                if (stroka.toCharArray()[i + 1] != '[') return false;
+            }
+            if (stroka.toCharArray()[i] == '[') numSkobka++;
+
+            if (stroka.toCharArray()[i] == ']') {     // Проверка закрыващей скобки
+                numSkobka++;
+                if (numSkobka < 0) return false;
+            }
+        }
+        if (numSkobka != 0) return false;
+
+        return (Pattern.matches("a-zA-Z\\[\\]0-9]+", stroka));
+    }
+}
